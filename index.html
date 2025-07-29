@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مقياس بيك للاكتئاب (النسخة الكاملة)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+ar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+      
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+        }
+        /* Custom scrollbar styling */
+        ::-webkit-scroll
+b      border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen items-center py-8 px-4">
+
+    <div class="max-w-3xl w-full bg-white shadow-lg rounded-xl p-6 sm:p-8 md:p-10">
+        <!-- Test Title -->
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 text-center mb-6">
+            مقياس بيك للاكتئاب (BDI-II)
+        </h1>
+        <p class="text-center text-gray-600 mb-8">
+            يرجى قراءة كل مجموعة من العبارات بعناية، ثم اختر العبارة التي تصف شعورك بشكل أفضل خلال الأسبوعين الماضيين، بما في ذلك اليوم.
+        </p>
+
+        <!-- Questions Section -->
+        <form id="bdi-form" class="space-y-8">
+            <!-- Questions will be dynamically inserted here by JavaScript -->
+        </form>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+            <button id="submit-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                احسب النتيجة
+            </button>
+            <button id="reset-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+                اختبار جديد
+            </button>
+        </div>
+
+        <!-- Results and Report Section -->
+        <div id="results-section" class="mt-12 p-6 bg-gray-50 rounded-xl shadow-inner hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">النتائج والتقرير</h2>
+            <p class="text-lg text-gray-700 mb-3">الدرجة الكلية: <span id="total-score" class="font-semibold text-blue-600">0</span></p>
+            <p class="text-lg text-gray-700 mb-3">مستوى الاكتئاب: <span id="depression-level" class="font-semibold text-green-600"></span></p>
+            <div id="report-details" class="mt-4 text-gray-800 leading-relaxed bg-white p-4 rounded-lg border border-gray-200">
+                <!-- Report details will appear here -->
+            </div>
+            <p class="text-sm text-gray-500 mt-6 text-center">
+                <i class="fas fa-info-circle ml-1"></i>
+                هذا المقياس هو أداة فحص أولية فقط ولا يغني عن التقييم السريري من قبل أخصائي الصحة النفسية.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Beck Depression Inventory-II (BDI-II) - Full 21 items
+        const questions = [
+            {
+                question: "1. الحزن",
+                options: [
+                    { text: "0: لا أشعر بالحزن.", score: 0 },
+                    { text: "1: أشعر بالحزن من وقت لآخر.", score: 1 },
+                    { text: "2: أشعر بالحزن طوال الوقت ولا أستطيع التخلص منه.", score: 2 },
+                    { text: "3: أنا حزين أو تعيس جداً لدرجة لا أستطيع تحملها.", score: 3 }
+                ]
+            },
+            {
+                question: "2. التشاؤم",
+                options: [
+                    { text: "0: لست متشائماً بشأن مستقبلي.", score: 0 },
+                    { text: "1: أشعر بالتشاؤم تجاه مستقبلي أكثر من المعتاد.", score: 1 },
+                    { text: "2: لا أتوقع أن تتحسن الأمور بالنسبة لي.", score: 2 },
+                    { text: "3: أشعر أن مستقبلي ميؤوس منه ولا أمل فيه.", score: 3 }
+                ]
+            },
+            {
+                question: "3. الفشل في الماضي",
+                options: [
+                    { text: "0: لا أشعر بأنني فاشل.", score: 0 },
+                    { text: "1: أشعر بأنني فشلت أكثر مما كان يجب أن أفشل.", score: 1 },
+                    { text: "2: عندما أنظر إلى حياتي، أرى الكثير من الفشل.", score: 2 },
+                    { text: "3: أشعر بأنني فاشل تماماً كشخص.", score: 3 }
+                ]
+            },
+            {
+                question: "4. فقدان المتعة",
+                options: [
+                    { text: "0: أستمتع بالأشياء كما كنت أفعل دائماً.", score: 0 },
+                    { text: "1: لم أعد أستمتع بالأشياء بنفس القدر الذي كنت أستمتع به.", score: 1 },
+                    { text: "2: لا أستمد أي متعة حقيقية من أي شيء تقريباً.", score: 2 },
+                    { text: "3: لا أستطيع الحصول على أي متعة من أي شيء على الإطلاق.", score: 3 }
+                ]
+            },
+            {
+                question: "5. الشعور بالذنب",
+                options: [
+                    { text: "0: لا أشعر بالذنب بشكل خاص.", score: 0 },
+                    { text: "1: أشعر بالذنب تجاه العديد من الأشياء التي فعلتها أو كان يجب أن أفعلها.", score: 1 },
+                    { text: "2: أشعر بالذنب في معظم الأوقات.", score: 2 },
+                    { text: "3: أشعر بالذنب طوال الوقت.", score: 3 }
+                ]
+            },
+            {
+                question: "6. الشعور بالعقاب",
+                options: [
+                    { text: "0: لا أشعر بأنني أتعرض للعقاب.", score: 0 },
+                    { text: "1: أشعر أنني قد أتعرض للعقاب.", score: 1 },
+                    { text: "2: أتوقع أن أتعرض للعقاب.", score: 2 },
+                    { text: "3: أشعر أنني أتعرض للعقاب.", score: 3 }
+                ]
+            },
+            {
+                question: "7. عدم الرضا عن الذات",
+                options: [
+                    { text: "0: لا أشعر بخيبة أمل في نفسي.", score: 0 },
+                    { text: "1: أنا خائب الأمل في نفسي.", score: 1 },
+                    { text: "2: أشعر بالاشمئزاز من نفسي.", score: 2 },
+                    { text: "3: أكره نفسي.", score: 3 }
+                ]
+            },
+            {
+                question: "8. النقد الذاتي",
+                options: [
+                    { text: "0: لا أنتقد نفسي أكثر من المعتاد.", score: 0 },
+                    { text: "1: أنا أكثر انتقاداً لنفسي بسبب نقاط ضعفي أو أخطائي.", score: 1 },
+                    { text: "2: ألوم نفسي طوال الوقت على أخطائي.", score: 2 },
+                    { text: "3: ألوم نفسي على كل شيء سيء يحدث.", score: 3 }
+                ]
+            },
+            {
+                question: "9. الأفكار أو الرغبات الانتحارية",
+                options: [
+                    { text: "0: ليس لدي أي أفكار عن إيذاء نفسي.", score: 0 },
+                    { text: "1: لدي أفكار عن إيذاء نفسي، لكنني لن أفعل ذلك.", score: 1 },
+                    { text: "2: أرغب في إيذاء نفسي.", score: 2 },
+                    { text: "3: سأؤذي نفسي لو سنحت لي الفرصة.", score: 3 }
+                ]
+            },
+            {
+                question: "10. البكاء",
+                options: [
+                    { text: "0: لا أبكي أكثر من المعتاد.", score: 0 },
+                    { text: "1: أبكي أكثر مما كنت أفعل.", score: 1 },
+                    { text: "2: أبكي على كل شيء صغير.", score: 2 },
+                    { text: "3: أشعر وكأنني سأبكي، لكنني لا أستطيع ذلك.", score: 3 }
+                ]
+            },
+            {
+                question: "11. التهيج",
+                options: [
+                    { text: "0: لا أشعر بالتهيج أكثر من المعتاد.", score: 0 },
+                    { text: "1: أشعر بالتهيج بسهولة أكبر من المعتاد.", score: 1 },
+                    { text: "2: أشعر بالتهيج طوال الوقت.", score: 2 },
+                    { text: "3: لا أستطيع أن أتحمل أي شيء على الإطلاق.", score: 3 }
+                ]
+            },
+            {
+                question: "12. فقدان الاهتمام",
+                options: [
+                    { text: "0: لم أفقد اهتمامي بالآخرين أو بالأنشطة.", score: 0 },
+                    { text: "1: أنا أقل اهتماماً بالآخرين أو بالأشياء مما كنت عليه من قبل.", score: 1 },
+                    { text: "2: فقدت معظم اهتمامي بالآخرين أو بالأشياء.", score: 2 },
+                    { text: "3: من الصعب أن أهتم بأي شيء.", score: 3 }
+                ]
+            },
+            {
+                question: "13. صعوبة اتخاذ القرارات",
+                options: [
+                    { text: "0: أتخذ القرارات بنفس سهولة المعتاد.", score: 0 },
+                    { text: "1: أجد صعوبة في اتخاذ القرارات أكثر من المعتاد.", score: 1 },
+                    { text: "2: أجد صعوبة كبيرة في اتخاذ القرارات.", score: 2 },
+                    { text: "3: أجد صعوبة في اتخاذ أي قرارات على الإطلاق.", score: 3 }
+                ]
+            },
+            {
+                question: "14. الشعور بعدم القيمة",
+                options: [
+                    { text: "0: لا أشعر بأنني عديم القيمة.", score: 0 },
+                    { text: "1: لا أعتبر نفسي ذا قيمة ومفيداً كما كنت من قبل.", score: 1 },
+                    { text: "2: أشعر بأنني عديم القيمة أكثر مقارنة بالآخرين.", score: 2 },
+                    { text: "3: أشعر بأنني عديم القيمة تماماً.", score: 3 }
+                ]
+            },
+            {
+                question: "15. فقدان الطاقة",
+                options: [
+                    { text: "0: لدي طاقة كافية للقيام بما أفعله.", score: 0 },
+                    { text: "1: لدي طاقة أقل مما كنت أمتلكه.", score: 1 },
+                    { text: "2: ليس لدي طاقة كافية للقيام بالكثير من الأشياء.", score: 2 },
+                    { text: "3: ليس لدي طاقة للقيام بأي شيء.", score: 3 }
+                ]
+            },
+            {
+                question: "16. تغيرات في النوم",
+                options: [
+                    { text: "0: أنام جيداً كما كنت أفعل دائماً.", score: 0 },
+                    { text: "1: أنام أقل مما كنت أفعل. / أنام أكثر مما كنت أفعل.", score: 1 },
+                    { text: "2: أستيقظ مبكراً بساعة أو ساعتين من المعتاد ولا أستطيع العودة إلى النوم. / أنام أكثر بكثير من المعتاد.", score: 2 },
+                    { text: "3: أستيقظ مبكراً بساعتين أو أكثر من المعتاد ولا أستطيع العودة إلى النوم. / أنام معظم اليوم.", score: 3 }
+                ]
+            },
+            {
+                question: "17. التهيج", // هذا البند مكرر في BDI-II، لكنه يركز على الجانب الجسدي/الحركي
+                options: [
+                    { text: "0: لست أكثر قلقاً أو توتراً من المعتاد.", score: 0 },
+                    { text: "1: أشعر بالقلق أو التوتر أكثر من المعتاد.", score: 1 },
+                    { text: "2: أنا قلق أو متوتر جداً لدرجة يصعب علي البقاء ساكناً.", score: 2 },
+                    { text: "3: أنا قلق أو متوتر جداً لدرجة يجب علي أن أتحرك أو أفعل شيئاً باستمرار.", score: 3 }
+                ]
+            },
+            {
+                question: "18. تغيرات في الشهية",
+                options: [
+                    { text: "0: شهيتي جيدة كما كانت دائماً.", score: 0 },
+                    { text: "1: شهيتي ليست جيدة كما كانت من قبل. / شهيتي أفضل قليلاً من المعتاد.", score: 1 },
+                    { text: "2: شهيتي سيئة جداً الآن. / شهيتي أفضل بكثير من المعتاد.", score: 2 },
+                    { text: "3: ليس لدي شهية على الإطلاق. / أرغب في تناول الطعام طوال الوقت.", score: 3 }
+                ]
+            },
+            {
+                question: "19. صعوبة التركيز",
+                options: [
+                    { text: "0: أستطيع التركيز جيداً كما كنت أفعل دائماً.", score: 0 },
+                    { text: "1: لا أستطيع التركيز جيداً كالمعتاد.", score: 1 },
+                    { text: "2: من الصعب علي أن أبقي ذهني مركزاً على أي شيء لفترة طويلة.", score: 2 },
+                    { text: "3: أجد أنني لا أستطيع التركيز على أي شيء على الإطلاق.", score: 3 }
+                ]
+            },
+            {
+                question: "20. التعب أو الإرهاق",
+                options: [
+                    { text: "0: لست أكثر تعباً أو إرهاقاً من المعتاد.", score: 0 },
+                    { text: "1: أشعر بالتعب أو الإرهاق بسهولة أكبر من المعتاد.", score: 1 },
+                    { text: "2: أنا متعب أو مرهق جداً للقيام بالكثير من الأشياء التي كنت أفعلها.", score: 2 },
+                    { text: "3: أنا متعب أو مرهق جداً للقيام بمعظم الأشياء التي كنت أفعلها.", score: 3 }
+                ]
+            },
+            {
+                question: "21. فقدان الاهتمام بالجنس",
+                options: [
+                    { text: "0: لم ألاحظ أي تغيير حديث في اهتمامي بالجنس.", score: 0 },
+                    { text: "1: أنا أقل اهتماماً بالجنس مما كنت عليه.", score: 1 },
+                    { text: "2: أنا أقل اهتماماً بالجنس بكثير الآن.", score: 2 },
+                    { text: "3: فقدت كل اهتمامي بالجنس تماماً.", score: 3 }
+                ]
+            }
+        ];
+
+        // DOM elements
+        const bdiForm = document.getElementById('bdi-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const resultsSection = document.getElementById('results-section');
+        const totalScoreSpan = document.getElementById('total-score');
+        const depressionLevelSpan = document.getElementById('depression-level');
+        const reportDetailsDiv = document.getElementById('report-details');
+
+        /**
+         * Function to dynamically render the test questions in the form.
+         */
+        function renderQuestions() {
+            bdiForm.innerHTML = ''; // Clear any existing questions
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'bg-white p-5 rounded-lg shadow-md border border-gray-200';
+                questionDiv.innerHTML = `
+                    <p class="font-semibold text-lg text-gray-800 mb-3">${q.question}</p>
+                    <div class="space-y-2">
+                        ${q.options.map((option, optIndex) => `
+                            <label class="flex items-center p-3 rounded-lg cursor-pointer hover:bg-blue-50 transition duration-200">
+                                <input type="radio" name="q${index}" value="${option.score}" class="form-radio h-5 w-5 text-blue-600 focus:ring-blue-500" required>
+                                <span class="mr-3 text-gray-700">${option.text}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                bdiForm.appendChild(questionDiv);
+            });
+        }
+
+        /**
+         * Function to calculate the total score and interpret it.
+         */
+        function calculateScore() {
+            let totalScore = 0;
+            let allAnswered = true;
+
+            questions.forEach((q, index) => {
+                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selectedOption) {
+                    totalScore += parseInt(selectedOption.value);
+                } else {
+                    allAnswered = false; // Not all questions have been answered
+                }
+            });
+
+            if (!allAnswered) {
+                // Use a custom message box instead of alert()
+                showCustomMessage("الرجاء الإجابة على جميع الأسئلة قبل حساب النتيجة.", "warning");
+                return;
+            }
+
+            totalScoreSpan.textContent = totalScore;
+            interpretScore(totalScore);
+            resultsSection.classList.remove('hidden'); // Show results section
+            // Scroll to the results section
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /**
+         * Function to interpret the score and display the report.
+         * @param {number} score - The total score from the BDI-II.
+         */
+        function interpretScore(score) {
+            let level = "";
+            let report = "";
+            let textColorClass = "";
+
+            if (score >= 0 && score <= 13) {
+                level = "الحد الأدنى من الاكتئاب";
+                report = "تشير نتيجتك إلى أنك تعاني من الحد الأدنى من أعراض الاكتئاب. هذا أمر طبيعي ولا يدعو للقلق في معظم الحالات.";
+                textColorClass = "text-green-600";
+            } else if (score >= 14 && score <= 19) {
+                level = "اكتئاب خفيف";
+                report = "تشير نتيجتك إلى وجود اكتئاب خفيف. قد تشعر ببعض التغيرات في مزاجك أو اهتماماتك. قد يكون من المفيد التحدث إلى أخصائي إذا استمرت هذه الأعراض أو أثرت على حياتك اليومية.";
+                textColorClass = "text-yellow-600";
+            } else if (score >= 20 && score <= 28) {
+                level = "اكتئاب متوسط";
+                report = "تشير نتيجتك إلى وجود اكتئاب متوسط. قد تكون الأعراض أكثر وضوحاً وتؤثر على جوانب مختلفة من حياتك. يوصى بشدة بطلب المساعدة من أخصائي الصحة النفسية لتقييم حالتك وتقديم الدعم المناسب.";
+                textColorClass = "text-orange-600";
+            } else if (score >= 29 && score <= 63) {
+                level = "اكتئاب شديد";
+                report = "تشير نتيجتك إلى وجود اكتئاب شديد. من المهم جداً طلب المساعدة الفورية من أخصائي الصحة النفسية أو الطبيب. لا تتردد في طلب الدعم؛ فالعلاج متاح ويمكن أن يساعدك على الشعور بالتحسن.";
+                textColorClass = "text-red-600";
+            } else {
+                level = "درجة غير صالحة";
+                report = "حدث خطأ في حساب الدرجة. يرجى التأكد من الإجابة على جميع الأسئلة بشكل صحيح.";
+                textColorClass = "text-gray-500";
+            }
+
+            depressionLevelSpan.textContent = level;
+            depressionLevelSpan.className = `font-semibold ${textColorClass}`;
+            reportDetailsDiv.textContent = report;
+        }
+
+        /**
+         * Function to show a custom message (instead of alert).
+         * @param {string} message - The message text.
+         * @param {string} type - The type of message (e.g., 'warning', 'info').
+         */
+        function showCustomMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-5 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg text-white z-50 transition-all duration-300 ease-in-out`;
+
+            if (type === 'warning') {
+                messageDiv.classList.add('bg-orange-500');
+            } else if (type === 'info') {
+                messageDiv.classList.add('bg-blue-500');
+            } else {
+                messageDiv.classList.add('bg-gray-700');
+            }
+
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                messageDiv.classList.add('opacity-0');
+                messageDiv.addEventListener('transitionend', () => messageDiv.remove());
+            }, 3000);
+        }
+
+        /**
+         * Function to reset the form and start a new test.
+         */
+        function resetForm() {
+            bdiForm.reset(); // Reset all form fields
+            resultsSection.classList.add('hidden'); // Hide results section
+            totalScoreSpan.textContent = '0';
+            depressionLevelSpan.textContent = '';
+            reportDetailsDiv.textContent = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top of the page
+        }
+
+        // Add event listeners for buttons
+        submitBtn.addEventListener('click', calculateScore);
+        resetBtn.addEventListener('click', resetForm);
+
+        // On page load, render the questions
+        window.onload = renderQuestions;
+    </script>
+</body>
+</html>
